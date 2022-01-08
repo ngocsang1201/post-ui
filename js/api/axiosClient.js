@@ -7,4 +7,27 @@ const axiosClient = axios.create({
   },
 })
 
+axiosClient.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem('access_token')
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
+
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+axiosClient.interceptors.response.use(
+  (response) => {
+    return response.data
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
 export default axiosClient
