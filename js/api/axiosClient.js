@@ -26,6 +26,12 @@ axiosClient.interceptors.response.use(
     return response.data
   },
   (error) => {
+    if (!error.response) throw new Error('Something went wrong')
+
+    if (error.response.status === 401) {
+      // redirect to login page
+    }
+
     return Promise.reject(error)
   }
 )
