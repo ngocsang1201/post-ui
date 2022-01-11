@@ -1,5 +1,10 @@
 import postApi from './api/postApi'
-import { setImageSrc, setTextContent } from './utils'
+import { setImageSrc, setTextContent, truncateText } from './utils'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+// add plugin to dayjs
+dayjs.extend(relativeTime)
 
 function createPostElement(post) {
   if (!post) return
@@ -10,9 +15,10 @@ function createPostElement(post) {
   const postElement = postTemplate.content.firstElementChild.cloneNode(true)
 
   setTextContent(postElement, '[data-id="title"]', post.title)
-  setTextContent(postElement, '[data-id="description"]', post.description)
+  setTextContent(postElement, '[data-id="description"]', truncateText(post.description, 100))
   setTextContent(postElement, '[data-id="author"]', post.author)
   setTextContent(postElement, '[data-id="title"]', post.title)
+  setTextContent(postElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
   setImageSrc(postElement, '[data-id="thumbnail"]', post.thumbnail)
 
   return postElement
