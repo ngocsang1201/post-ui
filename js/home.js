@@ -36,13 +36,55 @@ function renderPostList(postList) {
   })
 }
 
+function handleFilterChange(name, value) {
+  const url = new URL(window.location)
+  url.searchParams.set(name, value)
+
+  history.pushState({}, '', url)
+
+  // TODO: fetch data
+  // TODO: render data
+}
+
+function handlePrevClick(e) {
+  e.preventDefault()
+}
+
+function handleNextClick(e) {
+  e.preventDefault()
+}
+
+function initPagination() {
+  const ulPagination = document.getElementById('pagination')
+  if (!ulPagination) return
+
+  const prevLink = ulPagination.firstElementChild?.firstElementChild
+  if (prevLink) {
+    prevLink.addEventListener('click', handlePrevClick)
+  }
+
+  const nextLink = ulPagination.lastElementChild?.firstElementChild
+  if (nextLink) {
+    nextLink.addEventListener('click', handleNextClick)
+  }
+}
+
+function initUrl() {
+  const url = new URL(window.location)
+
+  if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1)
+  if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6)
+
+  history.pushState({}, '', url)
+}
+
 ;(async () => {
   try {
-    const params = {
-      _page: 1,
-      _limit: 6,
-    }
-    const { data, pagination } = await postApi.getAll(params)
+    initPagination()
+    initUrl()
+
+    const queryParams = new URLSearchParams(window.location.search)
+    const { data, pagination } = await postApi.getAll(queryParams)
     renderPostList(data)
   } catch (error) {
     console.log('Failed to fetch post list', error)
