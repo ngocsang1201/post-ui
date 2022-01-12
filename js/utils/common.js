@@ -1,11 +1,11 @@
-export function setTextContent(parent, selector, text) {
+export const setTextContent = (parent, selector, text) => {
   if (!parent) return
 
   const element = parent.querySelector(selector)
   if (element) element.textContent = text
 }
 
-export function setImageSrc(parent, selector, imgSrc) {
+export const setImageSrc = (parent, selector, imgSrc) => {
   if (!parent) return
 
   const element = parent.querySelector(selector)
@@ -18,7 +18,7 @@ export function setImageSrc(parent, selector, imgSrc) {
   }
 }
 
-export function truncateText(text, maxLength) {
+export const truncateText = (text, maxLength) => {
   if (text.length <= maxLength) return text
 
   return `${text.slice(0, maxLength - 1)}\u2026`

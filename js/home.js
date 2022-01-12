@@ -1,7 +1,14 @@
-import postApi from './api/postApi'
-import { setImageSrc, setTextContent, truncateText } from './utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import postApi from './api/postApi'
+import {
+  getPostListElement,
+  getPostTemplate,
+  getUlPagination,
+  setImageSrc,
+  setTextContent,
+  truncateText,
+} from './utils'
 
 // add plugin to dayjs
 dayjs.extend(relativeTime)
@@ -9,7 +16,7 @@ dayjs.extend(relativeTime)
 function createPostElement(post) {
   if (!post) return
 
-  const postTemplate = document.getElementById('postTemplate')
+  const postTemplate = getPostTemplate()
   if (!postTemplate) return
 
   const postElement = postTemplate.content.firstElementChild.cloneNode(true)
@@ -27,8 +34,10 @@ function createPostElement(post) {
 function renderPostList(postList) {
   if (!Array.isArray(postList) || postList.length === 0) return
 
-  const ulElement = document.getElementById('postList')
+  const ulElement = getPostListElement()
   if (!ulElement) return
+
+  ulElement.textContent = ''
 
   postList.forEach((post) => {
     const liElement = createPostElement(post)
@@ -36,18 +45,24 @@ function renderPostList(postList) {
   })
 }
 
-function handleFilterChange(name, value) {
-  const url = new URL(window.location)
-  url.searchParams.set(name, value)
+async function handleFilterChange(name, value) {
+  try {
+    const url = new URL(window.location)
+    url.searchParams.set(name, value)
 
-  history.pushState({}, '', url)
+    history.pushState({}, '', url)
 
-  // TODO: fetch data
-  // TODO: render data
+    const queryParams = new URLSearchParams(url.searchParams)
+    const { data, pagination } = await postApi.getAll(queryParams)
+
+    render(data, pagination)
+  } catch (error) {
+    console.log('Failed to change filter', error)
+  }
 }
 
 function renderPagination(pagination) {
-  const ulPagination = document.getElementById('pagination')
+  const ulPagination = getUlPagination()
   if (!pagination || !ulPagination) return
 
   const { _page, _limit, _totalRows } = pagination
@@ -65,14 +80,31 @@ function renderPagination(pagination) {
 
 function handlePrevClick(e) {
   e.preventDefault()
+
+  const ulPagination = getUlPagination()
+  if (!ulPagination) return
+
+  const page = parseInt(ulPagination.dataset.page) || 1
+  if (page <= 1) return
+
+  handleFilterChange('_page', page - 1)
 }
 
 function handleNextClick(e) {
   e.preventDefault()
+
+  const ulPagination = getUlPagination()
+  if (!ulPagination) return
+
+  const page = parseInt(ulPagination.dataset.page) || 1
+  const totalPages = parseInt(ulPagination.dataset.totalPages) || 1
+  if (page >= totalPages) return
+
+  handleFilterChange('_page', page + 1)
 }
 
 function initPagination() {
-  const ulPagination = document.getElementById('pagination')
+  const ulPagination = getUlPagination()
   if (!ulPagination) return
 
   const prevLink = ulPagination.firstElementChild?.firstElementChild
@@ -95,6 +127,11 @@ function initUrl() {
   history.pushState({}, '', url)
 }
 
+function render(postList, pagination) {
+  renderPostList(postList)
+  renderPagination(pagination)
+}
+
 ;(async () => {
   try {
     initPagination()
@@ -102,8 +139,7 @@ function initUrl() {
 
     const queryParams = new URLSearchParams(window.location.search)
     const { data, pagination } = await postApi.getAll(queryParams)
-    renderPostList(data)
-    renderPagination(pagination)
+    render(data, pagination)
   } catch (error) {
     console.log('Failed to fetch post list', error)
   }
