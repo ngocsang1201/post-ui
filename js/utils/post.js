@@ -11,16 +11,23 @@ export const createPostElement = (post) => {
   const postTemplate = document.getElementById('postTemplate')
   if (!postTemplate) return
 
-  const postElement = postTemplate.content.firstElementChild.cloneNode(true)
+  const liElement = postTemplate.content.firstElementChild.cloneNode(true)
 
-  setTextContent(postElement, '[data-id="title"]', post.title)
-  setTextContent(postElement, '[data-id="description"]', truncateText(post.description, 100))
-  setTextContent(postElement, '[data-id="author"]', post.author)
-  setTextContent(postElement, '[data-id="title"]', post.title)
-  setTextContent(postElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
-  setImageSrc(postElement, '[data-id="thumbnail"]', post.thumbnail)
+  setTextContent(liElement, '[data-id="title"]', post.title)
+  setTextContent(liElement, '[data-id="description"]', truncateText(post.description, 100))
+  setTextContent(liElement, '[data-id="author"]', post.author)
+  setTextContent(liElement, '[data-id="title"]', post.title)
+  setTextContent(liElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
+  setImageSrc(liElement, '[data-id="thumbnail"]', post.thumbnail)
 
-  return postElement
+  const divElement = liElement.firstElementChild
+  if (divElement) {
+    divElement.addEventListener('click', () => {
+      window.location.assign(`/post-detail.html?id=${post.id}`)
+    })
+  }
+
+  return liElement
 }
 
 export const renderPostList = (elementId, postList) => {
