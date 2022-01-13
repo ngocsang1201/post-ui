@@ -122,13 +122,15 @@ function initPagination() {
   }
 }
 
-function initUrl() {
+function initQueryParams() {
   const url = new URL(window.location)
 
   if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1)
   if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6)
 
   history.pushState({}, '', url)
+
+  return url.searchParams
 }
 
 function initSearch() {
@@ -155,9 +157,8 @@ function render(postList, pagination) {
   try {
     initPagination()
     initSearch()
-    initUrl()
 
-    const queryParams = new URLSearchParams(window.location.search)
+    const queryParams = initQueryParams()
     const { data, pagination } = await postApi.getAll(queryParams)
     render(data, pagination)
   } catch (error) {
