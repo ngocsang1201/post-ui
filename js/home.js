@@ -135,6 +135,10 @@ function initSearch() {
   const searchInput = getSearchInputElement()
   if (!searchInput) return
 
+  const queryParams = new URLSearchParams(window.location.search)
+  const title = queryParams.get('title_like')
+  if (title) searchInput.value = title
+
   const debounceSearch = debounce((e) => {
     handleFilterChange('title_like', e.target.value)
   }, 500)
@@ -150,8 +154,8 @@ function render(postList, pagination) {
 ;(async () => {
   try {
     initPagination()
-    initUrl()
     initSearch()
+    initUrl()
 
     const queryParams = new URLSearchParams(window.location.search)
     const { data, pagination } = await postApi.getAll(queryParams)
