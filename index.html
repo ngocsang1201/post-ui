@@ -75,7 +75,7 @@
       <div class="container">
         <ul class="nav justify-content-between align-items-center">
           <li class="nav-item">
-            <a class="nav__link" href="">
+            <a class="nav__link" href="/">
               <img class="nav__logo" src="./images/logo.svg" alt="Logo Nordic Coder" />
             </a>
           </li>
@@ -143,9 +143,15 @@
         <h1 class="with-underline text-center">Latest posts</h1>
 
 
+        <!-- Search input -->
+        <div class="input-group mb-3">
+          <span class="input-group-text" id="search">Search</span>
+          <input type="text" id="searchInput" class="form-control" placeholder="search by title" aria-label="Search"
+            aria-describedby="search">
+        </div>
 
         <!-- Post list -->
-        <ul id="postList" class="row posts-list justify-content-center">
+        <ul id="postList" class="row posts-list justify-content-center ps-0">
           <!-- <li class="col-12 col-md-6 col-lg-4">
             <div class="post-item mb-4">
               <div class="card">

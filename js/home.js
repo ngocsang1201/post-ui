@@ -1,146 +1,51 @@
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import postApi from './api/postApi'
-import {
-  getPostListElement,
-  getPostTemplate,
-  getUlPagination,
-  setImageSrc,
-  setTextContent,
-  truncateText,
-} from './utils'
+import { initPagination, registerSearchInput, renderPagination, renderPostList } from './utils'
 
-// add plugin to dayjs
-dayjs.extend(relativeTime)
-
-function createPostElement(post) {
-  if (!post) return
-
-  const postTemplate = getPostTemplate()
-  if (!postTemplate) return
-
-  const postElement = postTemplate.content.firstElementChild.cloneNode(true)
-
-  setTextContent(postElement, '[data-id="title"]', post.title)
-  setTextContent(postElement, '[data-id="description"]', truncateText(post.description, 100))
-  setTextContent(postElement, '[data-id="author"]', post.author)
-  setTextContent(postElement, '[data-id="title"]', post.title)
-  setTextContent(postElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
-  setImageSrc(postElement, '[data-id="thumbnail"]', post.thumbnail)
-
-  return postElement
-}
-
-function renderPostList(postList) {
-  if (!Array.isArray(postList) || postList.length === 0) return
-
-  const ulElement = getPostListElement()
-  if (!ulElement) return
-
-  ulElement.textContent = ''
-
-  postList.forEach((post) => {
-    const liElement = createPostElement(post)
-    ulElement.appendChild(liElement)
-  })
-}
-
-async function handleFilterChange(name, value) {
+const getDataAndRender = async (queryParams) => {
   try {
-    const url = new URL(window.location)
-    url.searchParams.set(name, value)
-
-    history.pushState({}, '', url)
-
-    const queryParams = new URLSearchParams(url.searchParams)
     const { data, pagination } = await postApi.getAll(queryParams)
-
-    render(data, pagination)
+    renderPostList('postList', data)
+    renderPagination('pagination', pagination)
   } catch (error) {
-    console.log('Failed to change filter', error)
+    console.log('Failed to get data', error)
   }
 }
 
-function renderPagination(pagination) {
-  const ulPagination = getUlPagination()
-  if (!pagination || !ulPagination) return
+const handleFilterChange = (name, value) => {
+  const url = new URL(window.location)
+  url.searchParams.set(name, value)
 
-  const { _page, _limit, _totalRows } = pagination
-  const totalPages = Math.ceil(_totalRows / _limit)
+  if (name === 'title_like') url.searchParams.set('_page', 1)
 
-  ulPagination.dataset.page = _page
-  ulPagination.dataset.totalPages = totalPages
+  history.pushState({}, '', url)
 
-  if (_page <= 1) ulPagination.firstElementChild?.classList.add('disabled')
-  else ulPagination.firstElementChild?.classList.remove('disabled')
-
-  if (_page >= totalPages) ulPagination.lastElementChild?.classList.add('disabled')
-  else ulPagination.lastElementChild?.classList.remove('disabled')
+  getDataAndRender(url.searchParams)
 }
 
-function handlePrevClick(e) {
-  e.preventDefault()
-
-  const ulPagination = getUlPagination()
-  if (!ulPagination) return
-
-  const page = parseInt(ulPagination.dataset.page) || 1
-  if (page <= 1) return
-
-  handleFilterChange('_page', page - 1)
-}
-
-function handleNextClick(e) {
-  e.preventDefault()
-
-  const ulPagination = getUlPagination()
-  if (!ulPagination) return
-
-  const page = parseInt(ulPagination.dataset.page) || 1
-  const totalPages = parseInt(ulPagination.dataset.totalPages) || 1
-  if (page >= totalPages) return
-
-  handleFilterChange('_page', page + 1)
-}
-
-function initPagination() {
-  const ulPagination = getUlPagination()
-  if (!ulPagination) return
-
-  const prevLink = ulPagination.firstElementChild?.firstElementChild
-  if (prevLink) {
-    prevLink.addEventListener('click', handlePrevClick)
-  }
-
-  const nextLink = ulPagination.lastElementChild?.firstElementChild
-  if (nextLink) {
-    nextLink.addEventListener('click', handleNextClick)
-  }
-}
-
-function initUrl() {
+const getQueryParams = () => {
   const url = new URL(window.location)
 
   if (!url.searchParams.get('_page')) url.searchParams.set('_page', 1)
   if (!url.searchParams.get('_limit')) url.searchParams.set('_limit', 6)
 
   history.pushState({}, '', url)
-}
 
-function render(postList, pagination) {
-  renderPostList(postList)
-  renderPagination(pagination)
+  return url.searchParams
 }
 
 ;(async () => {
-  try {
-    initPagination()
-    initUrl()
+  const queryParams = getQueryParams()
+  getDataAndRender(queryParams)
 
-    const queryParams = new URLSearchParams(window.location.search)
-    const { data, pagination } = await postApi.getAll(queryParams)
-    render(data, pagination)
-  } catch (error) {
-    console.log('Failed to fetch post list', error)
-  }
+  initPagination({
+    elementId: 'pagination',
+    defaultParams: queryParams,
+    onChange: (page) => handleFilterChange('_page', page),
+  })
+
+  registerSearchInput({
+    elementId: 'searchInput',
+    defaultParams: queryParams,
+    onChange: (value) => handleFilterChange('title_like', value),
+  })
 })()
