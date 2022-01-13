@@ -1,9 +1,6 @@
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { setImageSrc, setTextContent, truncateText } from './common'
+import { formatTime, setImage, setTextContent, truncateText } from './common'
 
 // add plugin to dayjs
-dayjs.extend(relativeTime)
 
 export const createPostElement = (post) => {
   if (!post) return
@@ -17,8 +14,8 @@ export const createPostElement = (post) => {
   setTextContent(liElement, '[data-id="description"]', truncateText(post.description, 100))
   setTextContent(liElement, '[data-id="author"]', post.author)
   setTextContent(liElement, '[data-id="title"]', post.title)
-  setTextContent(liElement, '[data-id="timeSpan"]', `- ${dayjs(post.createdAt).fromNow()}`)
-  setImageSrc(liElement, '[data-id="thumbnail"]', post.thumbnail)
+  setTextContent(liElement, '[data-id="timeSpan"]', `- ${formatTime(post.createdAt, 'fromNow')}`)
+  setImage(liElement, '[data-id="thumbnail"]', post.thumbnail)
 
   const divElement = liElement.firstElementChild
   if (divElement) {
