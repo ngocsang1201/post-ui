@@ -28,7 +28,12 @@ const renderPost = (post) => {
 }
 
 ;(async () => {
-  registerLightbox()
+  registerLightbox({
+    modalId: 'lightbox',
+    imgSelector: '#lightboxImg',
+    prevSelector: '#lightboxPrev',
+    nextSelector: '#lightboxNext',
+  })
 
   try {
     const searchParams = new URLSearchParams(window.location.search)
