@@ -4,15 +4,25 @@ const showModal = (modalElement) => {
   if (modal) modal.show()
 }
 
-export const registerLightbox = ({ modalId, imgSelector, prevSelector, nextSelector }) => {
+export const registerLightbox = ({
+  modalId,
+  imgSelector,
+  prevSelector,
+  nextSelector,
+  descriptionSelector,
+}) => {
   const modalElement = document.getElementById(modalId)
   if (!modalElement) return
+
+  if (!!modalElement.dataset.registered) return
+  modalElement.dataset.registered = true
 
   // selectors
   const imgElement = modalElement.querySelector(imgSelector)
   const prevButton = modalElement.querySelector(prevSelector)
   const nextButton = modalElement.querySelector(nextSelector)
-  if (!imgElement || !prevButton || !nextButton) return
+  const description = modalElement.querySelector(descriptionSelector)
+  if (!imgElement || !prevButton || !nextButton || !description) return
 
   // vars
   let imgList = []
@@ -20,6 +30,7 @@ export const registerLightbox = ({ modalId, imgSelector, prevSelector, nextSelec
 
   const showImgAtIndex = (index) => {
     imgElement.src = imgList[index].src
+    description.textContent = `${index + 1}/${imgList.length} - ${imgList[index].dataset.album}`
   }
 
   document.addEventListener('click', (e) => {
@@ -34,10 +45,12 @@ export const registerLightbox = ({ modalId, imgSelector, prevSelector, nextSelec
   })
 
   prevButton.addEventListener('click', () => {
-    console.log('prev')
+    currentIndex = (currentIndex - 1 + imgList.length) % imgList.length
+    showImgAtIndex(currentIndex)
   })
 
   nextButton.addEventListener('click', () => {
-    console.log('next')
+    currentIndex = (currentIndex + 1) % imgList.length
+    showImgAtIndex(currentIndex)
   })
 }

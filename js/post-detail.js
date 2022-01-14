@@ -33,6 +33,7 @@ const renderPost = (post) => {
     imgSelector: '#lightboxImg',
     prevSelector: '#lightboxPrev',
     nextSelector: '#lightboxNext',
+    descriptionSelector: '#lightboxDescription',
   })
 
   try {
