@@ -23,6 +23,10 @@ section.hero {
   margin-bottom: 1rem;
 }
 
+.post-detail .post-image:hover {
+  cursor: pointer;
+}
+
 #goToEditPageLink > i {
   transform: none;
 }

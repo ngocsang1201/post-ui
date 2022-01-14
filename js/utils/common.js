@@ -4,6 +4,9 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 // add plugin to dayjs
 dayjs.extend(relativeTime)
 
+export const randomNumber = (min, max) => Math.trunc(Math.random() * (max - min + 1) + min)
+export const randomImgUrl = () => `https://picsum.photos/id/${randomNumber(100, 1000)}/1368/800`
+
 export const setTextContent = (parent, selector, text) => {
   if (!parent) return
 
@@ -21,7 +24,7 @@ export const setImage = (parent, selector, imgUrl) => {
     element.src = imgUrl
 
     element.addEventListener('error', () => {
-      element.src = 'https://via.placeholder.com/1368x400.png'
+      element.src = randomImgUrl()
     })
   } else {
     element.style.backgroundImage = `url('${imgUrl}')`
