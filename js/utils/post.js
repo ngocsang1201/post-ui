@@ -14,8 +14,8 @@ export const createPostElement = (post) => {
   setTextContent(liElement, '[data-id="description"]', truncateText(post.description, 100))
   setTextContent(liElement, '[data-id="author"]', post.author)
   setTextContent(liElement, '[data-id="title"]', post.title)
-  setTextContent(liElement, '[data-id="timeSpan"]', `- ${formatTime(post.createdAt, 'fromNow')}`)
-  setImage(liElement, '[data-id="thumbnail"]', post.thumbnail)
+  setTextContent(liElement, '[data-id="timeSpan"]', `- ${formatTime(post.updatedAt, 'fromNow')}`)
+  setImage(liElement, '[data-id="thumbnail"]', post.imageUrl)
 
   const divElement = liElement.firstElementChild
   if (divElement) {
