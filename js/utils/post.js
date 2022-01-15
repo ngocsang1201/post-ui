@@ -19,8 +19,27 @@ export const createPostElement = (post) => {
 
   const divElement = liElement.firstElementChild
   if (divElement) {
-    divElement.addEventListener('click', () => {
+    divElement.addEventListener('click', (e) => {
+      const menuElement = divElement.querySelector('.post-item-menu')
+      if (menuElement.contains(e.target)) return
+
       window.location.assign(`/post-detail.html?id=${post.id}`)
+    })
+  }
+
+  const editButton = divElement.querySelector(`[data-id='edit']`)
+  if (editButton) {
+    editButton.addEventListener('click', (e) => {
+      // e.stopPropagation()
+      window.location.assign(`/add-edit-post.html?id=${post.id}`)
+    })
+  }
+
+  const removeButton = divElement.querySelector(`[data-id='remove']`)
+  if (removeButton) {
+    removeButton.addEventListener('click', (e) => {
+      // e.stopPropagation()
+      console.log('remove click')
     })
   }
 
