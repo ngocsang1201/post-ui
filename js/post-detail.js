@@ -1,6 +1,5 @@
 import postApi from './api/postApi'
-import { formatTime, randomImgUrl, setImage, setTextContent } from './utils'
-import { registerLightbox } from './utils/lightbox'
+import { formatTime, randomImgUrl, registerLightbox, setImage, setTextContent } from './utils'
 
 const renderPost = (post) => {
   if (!post) return
