@@ -77,17 +77,37 @@ const validatePostForm = async (form, formValues) => {
   return isValid
 }
 
+const showLoading = (form, state) => {
+  const button = form.querySelector('button[type="submit"]')
+  if (button) {
+    button.disabled = state
+    button.textContent = state ? 'Saving...' : 'Save'
+  }
+}
+
 export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
   const form = document.getElementById(formId)
   if (!form) return
 
+  let submitting = false
   setFormValues(form, defaultValues)
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
+    if (submitting) return
+    showLoading(form, true)
+    submitting = true
+
     const formValues = getFormValues(form)
+    formValues.id = defaultValues.id
+
     const isValid = await validatePostForm(form, formValues)
-    if (isValid) onSubmit?.(formValues)
+    if (!isValid) return
+
+    await onSubmit?.(formValues)
+
+    showLoading(form, false)
+    submitting = false
   })
 }
