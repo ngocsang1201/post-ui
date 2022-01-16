@@ -1,7 +1,24 @@
 import postApi from './api/postApi'
-import { initPostForm } from './utils'
+import { initPostForm, toast } from './utils'
 
-// main
+const handleFormSubmit = async (formValues) => {
+  try {
+    const savedPost = formValues.id
+      ? await postApi.update(formValues)
+      : await postApi.add(formValues)
+
+    toast.success('Saved post successfully!')
+
+    setTimeout(() => {
+      window.location.assign(`/post-detail.html?id=${savedPost.id}`)
+    }, 2000)
+  } catch (error) {
+    console.log('Failed to submit post form', error)
+    toast.error(error.message)
+  }
+}
+
+//? main
 ;(async () => {
   try {
     const params = new URLSearchParams(window.location.search)
@@ -19,7 +36,7 @@ import { initPostForm } from './utils'
     initPostForm({
       formId: 'postForm',
       defaultValues,
-      onSubmit: (formValues) => console.log('submit', formValues),
+      onSubmit: handleFormSubmit,
     })
   } catch (error) {
     console.log('Failed to fetch post detail', error)

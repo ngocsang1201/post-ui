@@ -87,9 +87,7 @@ export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
     e.preventDefault()
 
     const formValues = getFormValues(form)
-    const isValidFormValues = await validatePostForm(form, formValues)
-    if (!isValidFormValues) return
-
-    console.log(formValues)
+    const isValid = await validatePostForm(form, formValues)
+    if (isValid) onSubmit?.(formValues)
   })
 }
