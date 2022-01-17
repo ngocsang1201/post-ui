@@ -1,4 +1,4 @@
-import { setFieldValue, setImage, setTextContent } from './common'
+import { randomImgUrl, setFieldValue, setImage, setTextContent } from './common'
 import * as yup from 'yup'
 
 const fieldNames = ['title', 'author', 'description', 'imageUrl']
@@ -38,7 +38,7 @@ const getPostSchema = () =>
         (value) => value.split(' ').filter((x) => x).length >= 2
       ),
     description: yup.string(),
-    imageUrl: yup.string(),
+    imageUrl: yup.string().url('Please enter a valid URL').required('Please choose an image'),
   })
 
 const setFieldError = (form, name, error) => {
@@ -85,9 +85,22 @@ const showLoading = (form, state) => {
   }
 }
 
+const initRandomImage = (form) => {
+  const randomButton = document.getElementById('postChangeImage')
+  if (!randomButton) return
+
+  randomButton.addEventListener('click', () => {
+    const imageUrl = randomImgUrl()
+    setFieldValue(form, '[name="imageUrl"]', imageUrl)
+    setImage(document, '#postHeroImage', imageUrl)
+  })
+}
+
 export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
   const form = document.getElementById(formId)
   if (!form) return
+
+  initRandomImage(form)
 
   let submitting = false
   setFormValues(form, defaultValues)
@@ -103,9 +116,7 @@ export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
     formValues.id = defaultValues.id
 
     const isValid = await validatePostForm(form, formValues)
-    if (!isValid) return
-
-    await onSubmit?.(formValues)
+    if (isValid) await onSubmit?.(formValues)
 
     showLoading(form, false)
     submitting = false

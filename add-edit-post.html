@@ -108,10 +108,11 @@
                   We&apos;re using
                   <a href="https://picsum.photos">Picsum service</a> to get a random image.
                 </small>
-                <input type="hidden" name="imageUrl" />
+                <input type="text" name="imageUrl" class="d-none" />
+                <div class="invalid-feedback">Please enter image url of this post!</div>
                 <div>
                   <button type="button" id="postChangeImage" class="btn btn-dark mt-2">
-                    Change post image
+                    Random image
                   </button>
                 </div>
               </div>
