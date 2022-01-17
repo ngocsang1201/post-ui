@@ -96,11 +96,26 @@ const initRandomImage = (form) => {
   })
 }
 
+const renderImageSourceControl = (form, selectedValue) => {
+  const controlList = form.querySelectorAll('[data-id="imageSource"]')
+  controlList.forEach((control) => {
+    control.hidden = control.dataset.imageSource !== selectedValue
+  })
+}
+
+const initRadioImageSource = (form) => {
+  const radioList = form.querySelectorAll('input[name="imageSource"]')
+  radioList.forEach((radio) => {
+    radio.addEventListener('change', (e) => renderImageSourceControl(form, e.target.value))
+  })
+}
+
 export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
   const form = document.getElementById(formId)
   if (!form) return
 
   initRandomImage(form)
+  initRadioImageSource(form)
 
   let submitting = false
   setFormValues(form, defaultValues)
