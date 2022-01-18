@@ -110,12 +110,26 @@ const initRadioImageSource = (form) => {
   })
 }
 
+const initUploadImage = (form) => {
+  const uploadImage = form.querySelector('[name="imageUpload"]')
+  if (!uploadImage) return
+
+  uploadImage.addEventListener('change', (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const imageUrl = URL.createObjectURL(file)
+      setImage(document, '#postHeroImage', imageUrl)
+    }
+  })
+}
+
 export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
   const form = document.getElementById(formId)
   if (!form) return
 
   initRandomImage(form)
   initRadioImageSource(form)
+  initUploadImage(form)
 
   let submitting = false
   setFormValues(form, defaultValues)
