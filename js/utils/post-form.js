@@ -1,6 +1,11 @@
 import { randomImgUrl, setFieldValue, setImage, setTextContent } from './common'
 import * as yup from 'yup'
 
+const ImageSource = {
+  PICSUM: 'picsum',
+  UPLOAD: 'upload',
+}
+
 const fieldNames = ['title', 'author', 'description', 'imageUrl']
 
 const setFormValues = (form, values) => {
@@ -38,7 +43,20 @@ const getPostSchema = () =>
         (value) => value.split(' ').filter((x) => x).length >= 2
       ),
     description: yup.string(),
-    imageUrl: yup.string().url('Please enter a valid URL').required('Please choose an image'),
+    imageSource: yup
+      .string()
+      .required('Please select an image source')
+      .oneOf([ImageSource.PICSUM, ImageSource.UPLOAD], 'Invalid image source'),
+    imageUrl: yup.string().when('imageSource', {
+      is: ImageSource.PICSUM,
+      then: yup.string().required('Please select an image').url('Please enter a valid URL'),
+    }),
+    image: yup.mixed().when('imageSource', {
+      is: ImageSource.UPLOAD,
+      then: yup
+        .mixed()
+        .test('required', 'Please choose an image from your computer', (value) => !!value.name),
+    }),
   })
 
 const setFieldError = (form, name, error) => {
@@ -52,7 +70,7 @@ const setFieldError = (form, name, error) => {
 const validatePostForm = async (form, formValues) => {
   try {
     // reset errors
-    fieldNames.forEach((name) => setFieldError(form, name, ''))
+    ;[...fieldNames, 'image'].forEach((name) => setFieldError(form, name, ''))
 
     // validate
     const schema = getPostSchema()
@@ -86,7 +104,7 @@ const showLoading = (form, state) => {
 }
 
 const initRandomImage = (form) => {
-  const randomButton = document.getElementById('postChangeImage')
+  const randomButton = form.querySelector('#postChangeImage')
   if (!randomButton) return
 
   randomButton.addEventListener('click', () => {
@@ -111,7 +129,7 @@ const initRadioImageSource = (form) => {
 }
 
 const initUploadImage = (form) => {
-  const uploadImage = form.querySelector('[name="imageUpload"]')
+  const uploadImage = form.querySelector('[name="image"]')
   if (!uploadImage) return
 
   uploadImage.addEventListener('change', (e) => {

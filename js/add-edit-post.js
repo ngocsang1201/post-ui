@@ -2,6 +2,9 @@ import postApi from './api/postApi'
 import { initPostForm, toast } from './utils'
 
 const handleFormSubmit = async (formValues) => {
+  console.log('Submit form', formValues)
+  return
+
   try {
     const savedPost = formValues.id
       ? await postApi.update(formValues)
