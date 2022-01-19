@@ -6,10 +6,10 @@ export const ImageSource = {
   UPLOAD: 'upload',
 }
 
-const fieldNames = ['title', 'author', 'description', 'imageUrl']
-
 const setFormValues = (form, values) => {
-  fieldNames.forEach((name) => setFieldValue(form, `[name='${name}']`, values?.[name]))
+  ;['title', 'author', 'description', 'imageUrl'].forEach((name) =>
+    setFieldValue(form, `[name='${name}']`, values?.[name])
+  )
   setImage(document, '#postHeroImage', values.imageUrl)
 }
 
@@ -17,6 +17,7 @@ const getFormValues = (form) => {
   const formValues = {}
 
   //? S1: get value each input field
+  // const fieldNames = ['title', 'author', 'description', 'imageUrl', 'image']
   // for (const name of fieldNames) {
   //   const field = form.querySelector(`[name='${name}']`)
   //   formValues[name] = field.value
@@ -78,7 +79,7 @@ const setFieldError = (form, name, error) => {
 const validatePostForm = async (form, formValues) => {
   try {
     // reset errors
-    ;[...fieldNames, 'image'].forEach((name) => setFieldError(form, name, ''))
+    ;['title', 'author', 'imageUrl', 'image'].forEach((name) => setFieldError(form, name, ''))
 
     // validate
     const schema = getPostSchema()
@@ -101,6 +102,23 @@ const validatePostForm = async (form, formValues) => {
   const isValid = form.checkValidity()
   if (!isValid) form.classList.add('was-validated')
   return isValid
+}
+
+const validateFormField = async (form, formValues, name) => {
+  try {
+    // reset error
+    setFieldError(form, name, '')
+
+    const schema = getPostSchema()
+    await schema.validateAt(name, formValues)
+
+    const field = form.querySelector(`[name='${name}']`)
+    if (field && !field.checkValidity()) {
+      field.parentElement.classList.add('was-validated')
+    }
+  } catch (error) {
+    setFieldError(form, name, error.message)
+  }
 }
 
 const showLoading = (form, state) => {
@@ -145,6 +163,26 @@ const initUploadImage = (form) => {
     if (file) {
       const imageUrl = URL.createObjectURL(file)
       setImage(document, '#postHeroImage', imageUrl)
+
+      validateFormField(
+        form,
+        {
+          imageSource: ImageSource.UPLOAD,
+          image: file,
+        },
+        'image'
+      )
+    }
+  })
+}
+
+const initValidateOnChange = (form) => {
+  ;['title', 'author'].forEach((name) => {
+    const field = form.querySelector(`[name='${name}']`)
+    if (field) {
+      field.addEventListener('input', (e) => {
+        validateFormField(form, { [name]: e.target.value }, name)
+      })
     }
   })
 }
@@ -156,6 +194,7 @@ export const initPostForm = ({ formId, defaultValues, onSubmit }) => {
   initRandomImage(form)
   initRadioImageSource(form)
   initUploadImage(form)
+  initValidateOnChange(form)
 
   let submitting = false
   setFormValues(form, defaultValues)
