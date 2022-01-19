@@ -14,13 +14,36 @@ export const createPostElement = (post) => {
   setTextContent(liElement, '[data-id="description"]', truncateText(post.description, 100))
   setTextContent(liElement, '[data-id="author"]', post.author)
   setTextContent(liElement, '[data-id="title"]', post.title)
-  setTextContent(liElement, '[data-id="timeSpan"]', `- ${formatTime(post.createdAt, 'fromNow')}`)
-  setImage(liElement, '[data-id="thumbnail"]', post.thumbnail)
+  setTextContent(liElement, '[data-id="timeSpan"]', `- ${formatTime(post.updatedAt, 'fromNow')}`)
+  setImage(liElement, '[data-id="thumbnail"]', post.imageUrl)
 
   const divElement = liElement.firstElementChild
   if (divElement) {
-    divElement.addEventListener('click', () => {
+    divElement.addEventListener('click', (e) => {
+      const menuElement = divElement.querySelector('.post-item-menu')
+      if (menuElement.contains(e.target)) return
+
       window.location.assign(`/post-detail.html?id=${post.id}`)
+    })
+  }
+
+  const editButton = divElement.querySelector(`[data-id='edit']`)
+  if (editButton) {
+    editButton.addEventListener('click', (e) => {
+      // e.stopPropagation()
+      window.location.assign(`/add-edit-post.html?id=${post.id}`)
+    })
+  }
+
+  const removeButton = divElement.querySelector(`[data-id='remove']`)
+  if (removeButton) {
+    removeButton.addEventListener('click', () => {
+      const customEvent = new CustomEvent('remove-post', {
+        bubbles: true,
+        detail: post,
+      })
+
+      removeButton.dispatchEvent(customEvent)
     })
   }
 
