@@ -1,7 +1,7 @@
 import { randomImgUrl, setFieldValue, setImage, setTextContent } from './common'
 import * as yup from 'yup'
 
-const ImageSource = {
+export const ImageSource = {
   PICSUM: 'picsum',
   UPLOAD: 'upload',
 }
@@ -49,13 +49,21 @@ const getPostSchema = () =>
       .oneOf([ImageSource.PICSUM, ImageSource.UPLOAD], 'Invalid image source'),
     imageUrl: yup.string().when('imageSource', {
       is: ImageSource.PICSUM,
-      then: yup.string().required('Please select an image').url('Please enter a valid URL'),
+      then: yup
+        .string()
+        .required('Please random an image from picsum')
+        .url('Please enter a valid URL'),
     }),
     image: yup.mixed().when('imageSource', {
       is: ImageSource.UPLOAD,
       then: yup
         .mixed()
-        .test('required', 'Please choose an image from your computer', (value) => !!value.name),
+        .test('required', 'Please select an image from your computer', (file) => !!file.name)
+        .test('max-size', 'Image size should be less than 5MB', (file) => {
+          const fileSize = file?.size || 0
+          const maxSize = 5 * 1024 * 1024 // 5MB
+          return fileSize <= maxSize
+        }),
     }),
   })
 

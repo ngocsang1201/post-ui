@@ -1,8 +1,23 @@
 import postApi from './api/postApi'
-import { initPostForm, toast } from './utils'
+import { ImageSource, initPostForm, toast } from './utils'
+
+const removeUnusedFields = (formValues) => {
+  const payload = { ...formValues }
+
+  if (payload.imageSource === ImageSource.UPLOAD) {
+    delete payload.imageUrl
+  } else {
+    delete payload.image
+  }
+
+  delete payload.imageSource
+
+  return payload
+}
 
 const handleFormSubmit = async (formValues) => {
-  console.log('Submit form', formValues)
+  const payload = removeUnusedFields(formValues)
+  console.log('Submit form', { formValues, payload })
   return
 
   try {
