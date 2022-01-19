@@ -1,5 +1,11 @@
 import postApi from './api/postApi'
-import { initPagination, registerSearchInput, renderPagination, renderPostList } from './utils'
+import {
+  initPagination,
+  registerSearchInput,
+  renderPagination,
+  renderPostList,
+  toast,
+} from './utils'
 
 const getDataAndRender = async (queryParams) => {
   try {
@@ -11,15 +17,31 @@ const getDataAndRender = async (queryParams) => {
   }
 }
 
-const handleFilterChange = (name, value) => {
+const handleFilterChange = async (name, value) => {
   const url = new URL(window.location)
-  url.searchParams.set(name, value)
+  if (name) url.searchParams.set(name, value)
 
   if (name === 'title_like') url.searchParams.set('_page', 1)
 
   history.pushState({}, '', url)
 
-  getDataAndRender(url.searchParams)
+  await getDataAndRender(url.searchParams)
+}
+
+const registerRemovePostEvent = () => {
+  document.addEventListener('remove-post', async (e) => {
+    try {
+      const post = e.detail
+
+      const message = `Are you sure you want to delete "${post.title}"?`
+      if (window.confirm(message)) {
+        await postApi.remove(post.id)
+        await handleFilterChange()
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  })
 }
 
 const getQueryParams = () => {
@@ -36,6 +58,8 @@ const getQueryParams = () => {
 ;(async () => {
   const queryParams = getQueryParams()
   getDataAndRender(queryParams)
+
+  registerRemovePostEvent()
 
   initPagination({
     elementId: 'pagination',

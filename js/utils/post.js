@@ -37,9 +37,13 @@ export const createPostElement = (post) => {
 
   const removeButton = divElement.querySelector(`[data-id='remove']`)
   if (removeButton) {
-    removeButton.addEventListener('click', (e) => {
-      // e.stopPropagation()
-      console.log('remove click')
+    removeButton.addEventListener('click', () => {
+      const customEvent = new CustomEvent('remove-post', {
+        bubbles: true,
+        detail: post,
+      })
+
+      removeButton.dispatchEvent(customEvent)
     })
   }
 
